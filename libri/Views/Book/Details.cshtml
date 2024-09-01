@@ -1,0 +1,34 @@
+﻿@using libri.Data
+@model libri.Models.Book
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">Dettagli del Libro</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title mb-3">@Model.Title</h2>
+            <h5 class="card-subtitle mb-2 text-muted">@Model.Author</h5>
+            <p class="card-text"><strong>Data di Pubblicazione:</strong> @Model.PublishedYear.ToShortDateString()</p>
+
+            <h5 class="mt-4">Generi:</h5>
+            <div class="d-flex flex-wrap">
+                @if (Model.Genres != null && Model.Genres.Any())
+                {
+                    foreach (var genre in Model.Genres)
+                    {
+                        <span class="badge bg-primary me-2 mb-2">@genre.Name</span>
+                    }
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Nessun genere disponibile</span>
+                }
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-controller="Book" asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Torna alla Lista
+            </a>
+        </div>
+    </div>
+</div>

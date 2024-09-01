@@ -1,0 +1,95 @@
+﻿@model libri.Data.BookFormModel
+
+
+<h1>Aggiungi Nuovo Libro attraverso API</h1>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">Aggiungi Nuovo Libro</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <form id="bookForm">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="Title" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" id="Title" name="Title" placeholder="Inserisci il titolo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Author" class="form-label">Autore</label>
+                            <input type="text" class="form-control" id="Author" name="Author" placeholder="Inserisci l'autore" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="PublishedYear" class="form-label">Data di Pubblicazione</label>
+                            <input type="date" class="form-control" id="PublishedYear" name="PublishedYear" required>
+                        </div>
+
+                        <fieldset class="mb-3">
+                            <legend class="form-label">Generi</legend>
+                            @foreach (var genre in Model.Genres)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="genre_@genre.GenreId" name="SelectedGenreIds" value="@genre.GenreId">
+                                    <label class="form-check-label" for="genre_@genre.GenreId">
+                                        @genre.Name
+                                    </label>
+                                </div>
+                            }
+                        </fieldset>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">Salva</button>
+                            <a href="/Book" class="btn btn-secondary">Annulla</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CDN AXIOS -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    document.getElementById('bookForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const form = e.target;
+
+        // Creazione di un oggetto libro dai dati del form
+        const book = {
+            Title: form.Title.value,
+            Author: form.Author.value,
+            PublishedYear: form.PublishedYear.value
+        };
+
+        // Raccolta degli ID dei generi selezionati
+        const selectedGenres = [];
+        form.querySelectorAll('input[name="SelectedGenreIds"]:checked').forEach(checkbox => {
+            selectedGenres.push(parseInt(checkbox.value));
+        });
+
+        // Costruzione di FormData per inviare i dati tramite POST
+        const formData = new FormData();
+        formData.append('Title', book.Title);
+        formData.append('Author', book.Author);
+        formData.append('PublishedYear', book.PublishedYear);
+        selectedGenres.forEach(id => formData.append('SelectedGenreIds', id));
+
+        // Invio dei dati all'API tramite Axios
+        axios.post('/api/BookApi/InsertBook', formData)
+            .then(response => {
+                // Gestione della risposta positiva
+                window.location.href = '/Book';
+            })
+            .catch(error => {
+                // Gestione dell'errore
+                console.error('Errore durante l\'inserimento del libro:', error);
+                alert('Si è verificato un errore durante l\'inserimento del libro.');
+            });
+    });
+
+</script>

@@ -1,0 +1,103 @@
+﻿@model List<libri.Models.Book>
+
+
+
+<h1>Lista di libri attraverso API</h1>
+
+<div class="container">
+    <div class="col text-end mb-4">
+        <a asp-controller="Book" asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Aggiungi Libro
+        </a>
+    </div>
+    <div class="row">
+        
+        <div class="col">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Titolo</th>
+                        <th class="text-end">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="books-api-table-body">
+                    <!-- dati qui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- CDN AXIOS -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        axios.get("/api/BookApi/GetBooks")
+            .then(response => {
+                const books = response.data;
+                const tableBody = document.getElementById('books-api-table-body');
+
+                
+                tableBody.innerHTML = '';
+
+                // Aggiunta di righe con foreach
+                books.forEach(book => {
+                    const row = document.createElement('tr');
+
+                    // Create and append title cell
+                    const titleCell = document.createElement('td');
+                    const titleLink = document.createElement('a');
+                    // Cambia l'URL per puntare alla nuova pagina dei dettagli
+                    titleLink.href = `/Book/Details/${book.bookId}`;  
+                    titleLink.textContent = book.title;
+                    titleLink.className = 'text-decoration-none text-dark';
+                    titleCell.appendChild(titleLink);
+                    row.appendChild(titleCell);
+
+                    
+                    const actionsCell = document.createElement('td');
+                    actionsCell.className = 'text-end';
+
+                    
+                    const updateButton = document.createElement('a');
+                    updateButton.href = `/Book/Update/${book.bookId}`;
+                    updateButton.className = 'btn btn-warning btn-sm me-2';
+                    updateButton.innerHTML = '<i class="bi bi-pencil-square"></i> Modifica';
+                    actionsCell.appendChild(updateButton);
+
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';  
+                    deleteButton.className = 'btn btn-danger btn-sm';
+                    deleteButton.innerHTML = '<i class="bi bi-trash"></i> Elimina';
+                    deleteButton.onclick = function () {
+                        if (confirm('Sei sicuro di voler eliminare questo libro?')) {
+                            // Delete tramite api
+                            axios.delete(`/api/BookApi/DeleteBook/${book.bookId}`)
+                                .then(response => {
+                                    alert('Libro eliminato con successo!');
+                                    row.remove(); 
+                                })
+                                .catch(error => {
+                                    console.error('Errore durante l\'eliminazione del libro:', error);
+                                    alert('Si è verificato un errore durante l\'eliminazione del libro.');
+                                });
+                        }
+                    };
+                    actionsCell.appendChild(deleteButton);
+
+                    row.appendChild(actionsCell);
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Errore nel recupero dei libri:', error);
+            });
+    });
+
+</script>
+
+
+
